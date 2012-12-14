@@ -111,19 +111,19 @@ namespace tesseract {
     return [NSString stringWithUTF8String:utf8Text];
 }
 
-- (void)setImage:(UIImage *)image
+- (void)setImage:(CGImageRef)image
 {
     free(_pixels);
     
-    CGSize size = [image size];
-    int width = size.width;
-    int height = size.height;
+    int width = CGImageGetWidth(image);
+    int height = CGImageGetHeight(image);
 	
 	if (width <= 0 || height <= 0) {
 		return;
     }
 	
     _pixels = (uint32_t *) malloc(width * height * sizeof(uint32_t));
+    
     
     // Clear the pixels so any transparency is preserved
     memset(_pixels, 0, width * height * sizeof(uint32_t));
@@ -135,7 +135,7 @@ namespace tesseract {
                                                  kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedLast);
 	
     // Paint the bitmap to our context which will fill in the _pixels array
-    CGContextDrawImage(context, CGRectMake(0, 0, width, height), [image CGImage]);
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), image);
 	
 	// We're done with the context and color space
     CGContextRelease(context);
@@ -143,5 +143,6 @@ namespace tesseract {
     
     _tesseract->SetImage((const unsigned char *) _pixels, width, height, sizeof(uint32_t), width * sizeof(uint32_t));
 }
+
 
 @end
